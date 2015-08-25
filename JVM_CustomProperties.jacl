@@ -1,0 +1,103 @@
+puts "###########################################"
+puts "#  Script to print JVM properties of      #"
+puts "#      all the JVM's in a cell            #"
+puts "#     'Created by : Chris Sam'            #"
+puts "###########################################"
+
+#Provide this as a Jacl script file and run it with  the "-f" option:
+  #----------------------------------------------------------------
+  # find all the cell and process them one at a time
+  #----------------------------------------------------------------
+  set cells [$AdminConfig list Cell]
+  foreach cell $cells {
+     #-----------------------------------------------------------------------
+     # find all the nodes belonging to the cell and
+     # process them at a time
+     #-----------------------------------------------------------------------
+    set nodes [$AdminConfig list Node $cell]
+    foreach node $nodes {
+       #--------------------------------------------------------------
+       #  find all the running servers belonging to the cell
+       # and node, and process them one at a time
+       #--------------------------------------------------------------
+       set cname [$AdminConfig showAttribute $cell name]
+       set nname [$AdminConfig showAttribute $node name]
+       set servs [$AdminControl queryNames type=Server,cell=$cname,node=$nname,processType=ManagedProcess,*]
+       puts "Number of running servers on node $nname: [llength $servs]"
+       foreach server $servs {
+           #---------------------------------------------------------
+           # get some attributes from the server to display;
+           # invoke an operation on the server JVM to display a property.
+           #---------------------------------------------------------
+           set sname [$AdminControl getAttribute $server name]
+           set ptype [$AdminControl getAttribute $server processType]
+           set pid   [$AdminControl getAttribute $server pid]
+           set state [$AdminControl getAttribute $server state]
+
+           set jvm [$AdminControl queryNames type=JVM,cell=$cname,node=$nname,process=$sname,*]
+           set osname [$AdminControl invoke $jvm getProperty os.name]
+           puts "  $sname ($ptype) has pid $pid; state: $state; on $osname"
+
+           # get the JVM custom properties
+
+           set server1 [$AdminConfig getid /Node:$nname/Server:$sname/]
+           set processDef [$AdminConfig list ProcessDef $server1]
+           set javaVM [$AdminConfig list JavaVirtualMachine $processDef]
+           puts ""
+           puts " Printing Values of Application Servers --> $sname --> Process definition --> Java Virtual Machine "
+           puts ""
+           puts "Initial Heap   : [$AdminConfig showAttribute $javaVM initialHeapSize] MB"
+           puts ""
+           puts "Maximum Heap   : [$AdminConfig showAttribute $javaVM maximumHeapSize] MB"
+           puts ""
+           puts "JIT Disabled   : [$AdminConfig showAttribute $javaVM disableJIT]"
+           puts ""
+           puts "Debug Mode     : [$AdminConfig showAttribute $javaVM debugMode]"
+           puts ""
+           puts "Boot Classpath : [$AdminConfig showAttribute $javaVM bootClasspath]"
+           puts ""
+           puts "Classpath      : [$AdminConfig showAttribute $javaVM classpath]"
+           puts ""
+           puts "Debug Args     : [$AdminConfig showAttribute $javaVM debugArgs]"
+           puts ""
+           puts "Generic Args   : [$AdminConfig showAttribute $javaVM genericJvmArguments]"
+           puts ""
+           puts ""
+
+           set customProps [$AdminConfig list Property $javaVM]
+
+           puts " Printing Values of Application Servers --> $sname --> Process definition --> Java Virtual Machine --> Custom Properties "
+
+        foreach customProp $customProps {
+
+           puts ""
+           puts "Name         : [$AdminConfig showAttribute $customProp name]"
+           puts "Value        : [$AdminConfig showAttribute $customProp value]"
+          # puts "Required     : [$AdminConfig showAttribute $customProp required]"
+           puts "Description  : [$AdminConfig showAttribute $customProp description]"
+        }
+
+
+           #---------------------------------------------------------
+           #  find the applications running on this server and
+           # display the application name.
+           #---------------------------------------------------------
+           set apps [$AdminControl queryNames type=Application,cell=$cname,node=$nname,process=$sname,*]
+           puts ""
+           puts ""
+           puts "  Number of applications running on $sname: [llength $apps]"
+           foreach app $apps {
+              set aname [$AdminControl getAttribute $app name]
+              puts "    $aname"
+           }
+           puts ""
+           puts ""
+           puts "----------------------------------------------------"
+           puts "####################################################"
+           puts ""
+           puts ""
+
+        }
+     }
+  }
+

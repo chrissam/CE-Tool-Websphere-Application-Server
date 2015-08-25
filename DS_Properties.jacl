@@ -1,0 +1,86 @@
+puts "##################################################"
+puts "#   Script to print all the Configuration Values #"
+puts "#                   of the DataSource            #"
+puts "#            'Created by Chris Sam'              #"
+puts "##################################################"
+
+
+
+#Provide this example as a Jacl script file and run it with  the "-f" option:
+  #-----------------
+  # find cell name
+  #-----------------
+
+        set cell [$AdminConfig list Cell]
+        set cname [$AdminConfig showAttribute $cell name]
+        set DS_List [$AdminConfig list DataSource $cell]
+
+        foreach DS $DS_List {
+
+
+                set DS_Name [$AdminConfig showAttribute $DS name]
+
+                        if {$DS_Name != "DefaultEJBTimerDataSource"} {
+
+                        set Conn_Pool [$AdminConfig list ConnectionPool $DS]
+                        set Property_Set [$AdminConfig showAttribute $DS propertySet]
+                        set Resource_properties [$AdminConfig list J2EEResourceProperty $Property_Set]
+
+                        puts ""
+                        puts ""
+                        puts "################################################################"
+                        puts ""
+                        puts ""
+                        puts " Printing Configuration Details of Node : $DS "
+                        puts ""
+                        puts "    Printing Configuration Details of DataSource - $DS_Name     "
+                        puts "  ------------------------------------------------------------------"
+                        puts "Name                : [ $AdminConfig showAttribute $DS name] "
+                        puts ""
+                        puts "JNDI Name    : [ $AdminConfig showAttribute $DS jndiName] "
+                        puts ""
+                        puts "Connection Timeout  : [ $AdminConfig showAttribute $Conn_Pool connectionTimeout] "
+                        puts ""
+                        puts "Maximum Connections : [ $AdminConfig showAttribute $Conn_Pool maxConnections] "
+                        puts ""
+                        puts "Minimum connections : [ $AdminConfig showAttribute $Conn_Pool minConnections] "
+                        puts ""
+                        puts "Reap time    :  [ $AdminConfig showAttribute $Conn_Pool reapTime] "
+                        puts ""
+                        puts "Unused timeout      : [ $AdminConfig showAttribute $Conn_Pool unusedTimeout] "
+                        puts ""
+                        puts "Aged timeout        : [ $AdminConfig showAttribute $Conn_Pool agedTimeout] "
+                        puts ""
+                        puts "Purge policy         : [ $AdminConfig showAttribute $Conn_Pool purgePolicy] "
+                        puts ""
+                        puts "Authentication Mechanism     : [ $AdminConfig showAttribute $DS authMechanismPreference] "
+                        puts ""
+                        puts "DataSource Helper Class Name         : [ $AdminConfig showAttribute $DS datasourceHelperClassname] "
+                        puts ""
+                        puts "Diagnose Connection Usage    : [ $AdminConfig showAttribute $DS diagnoseConnectionUsage] "
+                        puts ""
+                        puts "Log Missing Transaction Context      : [ $AdminConfig showAttribute $DS logMissingTransactionContext] "
+                        puts ""
+                        puts "Mapping              : [ $AdminConfig showAttribute $DS mapping] "
+                        puts ""
+                        puts "Provider             : [ $AdminConfig showAttribute $DS provider] "
+                        puts ""
+                        puts "Provider Type        : [ $AdminConfig showAttribute $DS providerType] "
+                        puts ""
+                        puts "Relational Resource Adapter          : [ $AdminConfig showAttribute $DS relationalResourceAdapter] "
+                        puts ""
+                        puts "Statement Cache Size         : [ $AdminConfig showAttribute $DS statementCacheSize] "
+                        puts ""
+                        puts "XA RecoveryAuthAlias         : [ $AdminConfig showAttribute $DS xaRecoveryAuthAlias] "
+                        puts ""
+
+
+                foreach RP $Resource_properties {
+
+                        set Name [ $AdminConfig showAttribute $RP name ]
+                        puts "$Name   : [$AdminConfig showAttribute $RP value] "
+                        puts ""
+
+                        }
+                }
+        }

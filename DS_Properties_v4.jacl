@@ -1,0 +1,73 @@
+puts "##################################################"
+puts "#   Script to print all the Configuration Values #"
+puts "#                   of the DataSource            #"
+puts "#            'Created by Chris Sam'              #"
+puts "##################################################"
+
+
+
+#Provide this example as a Jacl script file and run it with  the "-f" option:
+  #-----------------
+  # find cell name
+  #-----------------
+
+        set cell [$AdminConfig list Cell]
+        set cname [$AdminConfig showAttribute $cell name]
+        set DS_List [$AdminConfig list WAS40DataSource $cell]
+
+        foreach DS $DS_List {
+
+
+                set DS_Name [$AdminConfig showAttribute $DS name]
+
+                        if {$DS_Name != "DefaultEJBTimerDataSource"} {
+
+                        set Conn_Pool [$AdminConfig list WAS40ConnectionPool $DS]
+                        set Property_Set [$AdminConfig showAttribute $DS propertySet]
+                        set Resource_properties [$AdminConfig list J2EEResourceProperty $Property_Set]
+
+
+                        puts ""
+                        puts ""
+                        puts "###############################################"
+                        puts ""
+                        puts ""
+                        puts "Printing DataSource Configurations of node : $DS "
+                        puts ""
+                        puts "    Printing Configuration Details of DataSource - $DS_Name     "
+                        puts "  ------------------------------------------------------------------"
+                        puts "Name                : [ $AdminConfig showAttribute $DS name] "
+                        puts ""
+                        puts "JNDI Name    : [ $AdminConfig showAttribute $DS jndiName] "
+                        puts ""
+                        puts "Provider Type    : [ $AdminConfig showAttribute $DS providerType] "
+                        puts ""
+                        puts "Database Name    : [ $AdminConfig showAttribute $DS databaseName] "
+                        puts ""
+                        puts "Default User    : [ $AdminConfig showAttribute $DS defaultUser] "
+                        puts ""
+                        puts "Default Password    : [ $AdminConfig showAttribute $DS defaultPassword] "
+                        puts ""
+                        puts "Connection Timeout  : [ $AdminConfig showAttribute $Conn_Pool connectionTimeout] "
+                        puts ""
+                        puts "Maximum Connections : [ $AdminConfig showAttribute $Conn_Pool maximumPoolSize] "
+                        puts ""
+                        puts "Minimum connections : [ $AdminConfig showAttribute $Conn_Pool minimumPoolSize] "
+                        puts ""
+                        puts "Idle Timout    :  [ $AdminConfig showAttribute $Conn_Pool idleTimeout] "
+                        puts ""
+                        puts "Orphan Timeout        : [ $AdminConfig showAttribute $Conn_Pool orphanTimeout] "
+                        puts ""
+
+
+
+                foreach RP $Resource_properties {
+
+                        set Name [ $AdminConfig showAttribute $RP name ]
+                        puts "$Name   : [$AdminConfig showAttribute $RP value] "
+                        puts ""
+
+                        }
+                }
+        }
+

@@ -1,0 +1,68 @@
+puts "###########################################"
+puts "#   Script to Print Custom Services       #"
+puts "#    properties of the Servers            #"
+puts "#      'Created by Chris Sam'             #"
+puts "###########################################"
+
+
+#Provide this example as a Jacl script file and run it with  the "-f" option:
+  #----------------------------------------------------------------
+  # find all the cell and process them one at a time
+  #----------------------------------------------------------------
+  set cells [$AdminConfig list Cell]
+  foreach cell $cells {
+     #-----------------------------------------------------------------------
+     # find all the nodes belonging to the cell and
+     # process them at a time
+     #-----------------------------------------------------------------------
+    set nodes [$AdminConfig list Node $cell]
+    foreach node $nodes {
+       #--------------------------------------------------------------
+       #  find all the running servers belonging to the cell
+       # and node, and process them one at a time
+       #--------------------------------------------------------------
+       set cname [$AdminConfig showAttribute $cell name]
+       set nname [$AdminConfig showAttribute $node name]
+       set servs [$AdminControl queryNames type=Server,cell=$cname,node=$nname,processType=ManagedProcess,*]
+
+                foreach server $servs {
+
+                set sname [$AdminControl getAttribute $server name]
+                set servername [$AdminConfig getid /Cell:$cname/Node:$nname/Server:$sname]
+                set Custom_Service [$AdminConfig list CustomService $servername]
+
+                if {$Custom_Service != ""} {
+
+                puts ""
+                puts "       ###########################################      "
+                puts ""
+                puts ""
+                puts " Printing CustomService details for the Server $sname "
+                puts " -----------------------------------------------------"
+                puts ""
+                puts " Display Name      :  [$AdminConfig showAttribute $Custom_Service displayName] "
+                puts " Class Path        :  [$AdminConfig showAttribute $Custom_Service classpath] "
+                puts " ExternalConfigURL :  [$AdminConfig showAttribute $Custom_Service externalConfigURL] "
+                puts " Class Name        :  [$AdminConfig showAttribute $Custom_Service classname] "
+                set DisplayName [$AdminConfig showAttribute $Custom_Service displayName]
+                puts ""
+                puts "Printing Values of $sname --> Administration --> Custom Services --> $DisplayName --> Custom Properties"
+
+                set property [$AdminConfig list Property $Custom_Service]
+                foreach property_list $property {
+
+                set property_name [$AdminConfig showAttribute $property_list name]
+                set property_value [$AdminConfig showAttribute $property_list value]
+                puts ""
+                puts " $property_name  :  $property_value "
+
+
+                }
+
+                }
+
+                }
+        }
+
+}
+
